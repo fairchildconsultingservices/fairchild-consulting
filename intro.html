@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#08040f" />
+  <title>Fairchild Consulting Services</title>
+  <meta name="description" content="A legend slain. Custom AI, websites, and workflows by Fairchild Consulting Services." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <style>
+    body { background: #000; margin: 0; }
+    .intro-skip-prompt {
+      position: absolute;
+      bottom: 14px; right: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      z-index: 10;
+      pointer-events: none;
+    }
+    #err {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #c4181a;
+      color: white;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 10px;
+      z-index: 1000;
+      white-space: pre-wrap;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="err"></div>
+  <main class="intro-page">
+    <div class="intro-canvas-wrap">
+      <canvas id="intro-canvas" width="240" height="426"></canvas>
+      <div class="intro-controls">
+        <button id="skip-btn" class="intro-skip" type="button" aria-label="Skip animation">Skip ›</button>
+      </div>
+      <a id="enter-btn" class="btn btn-primary intro-cta" href="index.html">Enter the Portfolio →</a>
+      <div class="intro-skip-prompt">Tap anywhere to skip</div>
+    </div>
+  </main>
+
+  <script>
+    // Show any error that happens before/during animation load
+    window.addEventListener('error', function (ev) {
+      var el = document.getElementById('err');
+      el.style.display = 'block';
+      el.textContent = 'JS error: ' + ev.message + '\n  at ' + (ev.filename || '') + ':' + (ev.lineno || '?');
+    });
+  </script>
+  <script src="js/cinematic.js" onerror="document.getElementById('err').style.display='block';document.getElementById('err').textContent='Failed to load js/cinematic.js — check the file exists at js/cinematic.js relative to intro.html.';"></script>
+  <script>
+    (function () {
+      try {
+        const skipBtn = document.getElementById('skip-btn');
+        const enterBtn = document.getElementById('enter-btn');
+        const canvas = document.getElementById('intro-canvas');
+        let finished = false;
+
+        if (!window.FairchildIntro) {
+          throw new Error('FairchildIntro not defined — animation.js failed to load. Try a hard refresh (Ctrl+Shift+R).');
+        }
+
+        function finish() {
+          if (finished) return;
+          finished = true;
+          enterBtn.classList.add('show');
+          setTimeout(() => { window.location.href = 'index.html'; }, 3500);
+        }
+
+        canvas.addEventListener('click', () => {
+          if (!finished && window.FairchildIntro) window.FairchildIntro.skip();
+        });
+        skipBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (window.FairchildIntro) window.FairchildIntro.skip();
+        });
+        enterBtn.addEventListener('click', () => { finished = true; });
+
+        window.FairchildIntro.start(finish);
+      } catch (e) {
+        var el = document.getElementById('err');
+        el.style.display = 'block';
+        el.textContent = 'Boot error: ' + (e.message || e) + (e.stack ? '\n' + e.stack : '');
+      }
+    })();
+  </script>
+</body>
+</html>
