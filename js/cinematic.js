@@ -497,13 +497,28 @@ console.log('[Fairchild] animation.js script started parsing');
     // Tip glint highlight (catches the moonlight)
     p(78, 12 + wag3, 1, 1, C.dragonBodyHi);
 
-    // ------- Body -------
-    p(22, 14, 32, 14, C.dragonBody);
-    // Belly highlight (warm orange underbelly)
-    p(24, 22, 28, 5, C.dragonBelly);
-    p(26, 23, 24, 1, '#ffce6a'); // bright stripe
-    // Top shading
-    p(24, 14, 28, 2, C.dragonBodyDk);
+    // ------- Body — stepped organic silhouette instead of flat rectangle -------
+    // Top arch: narrower at shoulders + hips, widest in mid-back
+    p(28, 12, 18, 1, C.dragonBodyDk);          // arched top ridge (narrow)
+    p(25, 13, 24, 1, C.dragonBodyDk);          // shoulder taper
+    p(23, 14, 28, 1, C.dragonBody);            // upper body widening
+    p(22, 15, 30, 1, C.dragonBody);            // shoulder line full
+    // Mid-body (widest cross-section, fully drawn)
+    p(22, 16, 32, 5, C.dragonBody);            // main mid torso (rib cage)
+    // Body lower half tapers toward belly
+    p(23, 21, 30, 1, C.dragonBody);
+    p(24, 22, 28, 1, C.dragonBody);
+    // Belly curve — softer underside than the back
+    p(25, 23, 26, 2, C.dragonBelly);
+    p(27, 25, 22, 2, C.dragonBelly);
+    p(29, 27, 18, 1, C.dragonBelly);
+    // Bright belly stripe
+    p(28, 24, 20, 1, '#ffce6a');
+    // Subtle shoulder/hip rounded shadow corners
+    p(22, 14, 1, 1, C.dragonBodyDk);
+    p(53, 14, 1, 1, C.dragonBodyDk);
+    p(23, 22, 1, 1, C.dragonBodyDk);
+    p(52, 22, 1, 1, C.dragonBodyDk);
     // Scale pattern — staggered crescents across the back/sides for hand-drawn feel
     const scalesA = [[24, 17], [29, 17], [34, 17], [39, 17], [44, 17], [49, 17]];
     const scalesB = [[26, 19], [31, 19], [36, 19], [41, 19], [46, 19]];
@@ -1067,13 +1082,12 @@ console.log('[Fairchild] animation.js script started parsing');
       ctx.globalAlpha = 1;
     }
 
-    // Death explosion — the killing blow lands. Big white flash + heavy shake.
+    // Death blow — heavy shake + debris, no screen flash (cleaner moment)
     if (p < 0.05) {
       spawnPixelDebris(dragonFallX, dragonFallY, 40);
       spawnSpark(dragonFallX, dragonFallY, 30);
       spawnEmber(dragonFallX, dragonFallY, 15);
-      triggerFlash('255,247,196', 18); // gold-white flash, lingers
-      triggerShake(5, 22);              // strong shake fading out
+      triggerShake(5, 22);
     }
 
     // Knight finishing pose
@@ -1215,6 +1229,7 @@ console.log('[Fairchild] animation.js script started parsing');
     const ulW = w1 + 8;
     px((W - ulW) / 2, y1 + 7 * scale1 + 2, ulW, 1, C.titleDk);
     for (let i = 0; i < Math.floor(reveal1); i++) {
+      const ch = line1[i];
       drawText(ch, x1 + i * 6 * scale1, y1, C.title, scale1);
       drawText(ch, x1 + i * 6 * scale1, y1 - 1, C.titleHi, scale1);
     }
