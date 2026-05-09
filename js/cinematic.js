@@ -464,17 +464,37 @@ console.log('[Fairchild] animation.js script started parsing');
     p(54, 18 + tailWag, 8, 1, C.dragonBodyDk);
 
     // ------- Body -------
-    // Main torso
     p(22, 14, 32, 14, C.dragonBody);
-    // Belly highlight
+    // Belly highlight (warm orange underbelly)
     p(24, 22, 28, 5, C.dragonBelly);
+    p(26, 23, 24, 1, '#ffce6a'); // bright stripe
     // Top shading
     p(24, 14, 28, 2, C.dragonBodyDk);
-    // Back spikes
+    // Scale pattern — staggered crescents across the back/sides for hand-drawn feel
+    const scalesA = [[24, 17], [29, 17], [34, 17], [39, 17], [44, 17], [49, 17]];
+    const scalesB = [[26, 19], [31, 19], [36, 19], [41, 19], [46, 19]];
+    for (const [sx, sy] of scalesA) {
+      p(sx, sy, 3, 1, C.dragonBodyHi);
+      p(sx + 1, sy + 1, 1, 1, C.dragonBodyDk);
+    }
+    for (const [sx, sy] of scalesB) {
+      p(sx, sy, 3, 1, C.dragonBodyHi);
+      p(sx + 1, sy + 1, 1, 1, C.dragonBodyDk);
+    }
+    // Belly scale lines (lighter)
+    p(28, 24, 1, 1, '#ffd870');
+    p(34, 24, 1, 1, '#ffd870');
+    p(40, 24, 1, 1, '#ffd870');
+    p(46, 24, 1, 1, '#ffd870');
+    // Back spikes (now with highlight tip)
     p(30, 12, 2, 3, C.dragonBodyDk);
+    p(30, 12, 2, 1, C.dragonBodyHi);
     p(36, 10, 2, 4, C.dragonBodyDk);
+    p(36, 10, 2, 1, C.dragonBodyHi);
     p(42, 11, 2, 4, C.dragonBodyDk);
+    p(42, 11, 2, 1, C.dragonBodyHi);
     p(48, 13, 2, 3, C.dragonBodyDk);
+    p(48, 13, 2, 1, C.dragonBodyHi);
 
     // ------- Legs / claws -------
     const legBob = (wingFrame === 1 || wingFrame === 3) ? 1 : 0;
@@ -499,6 +519,22 @@ console.log('[Fairchild] animation.js script started parsing');
     p(0, 14, 4, 5, C.dragonBody);
     // Nostril
     p(1, 15, 1, 1, C.dragonBodyDk);
+    p(2, 16, 1, 1, C.dragonBodyDk);
+    // Smoking nostrils — wisps drift up when alive
+    if (state !== 'dying' && state !== 'dead' && Math.random() < 0.22) {
+      const snoutCanvasX = flip ? (ax + 32 * scale - 2) : (ax - 32 * scale + 2);
+      const snoutCanvasY = ay - 20 * scale + 16 * scale;
+      particles.push({
+        type: 'ember',
+        x: snoutCanvasX, y: snoutCanvasY,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -0.35 - Math.random() * 0.25,
+        life: 35 + Math.random() * 20,
+        max: 55,
+        // mark as nostril smoke for grayer color
+        smoke: true,
+      });
+    }
     // Horns
     p(6, 6, 2, 5, C.dragonBodyDk);
     p(11, 6, 2, 5, C.dragonBodyDk);
@@ -674,6 +710,10 @@ console.log('[Fairchild] animation.js script started parsing');
         px(p.x, p.y, s, s, color);
       } else if (p.type === 'spark') {
         px(p.x, p.y, 1, 1, t > 0.5 ? '#fff' : C.fire1);
+      } else if (p.type === 'ember' && p.smoke) {
+        // Nostril smoke — grayish, fades as it rises
+        const c = t > 0.6 ? '#7a6a78' : t > 0.3 ? '#5a4a58' : '#3a2e3a';
+        px(p.x, p.y, 1, 1, c);
       } else if (p.type === 'ember') {
         px(p.x, p.y, 1, 1, t > 0.5 ? C.fire1 : C.fire2);
       } else if (p.type === 'blood') {
