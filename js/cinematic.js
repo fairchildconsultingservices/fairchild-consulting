@@ -202,7 +202,43 @@ console.log('[Fairchild] animation.js script started parsing');
     px(cx - 2, cy + 3, 1, 1, '#d4c485');
   }
 
+  // Drifting clouds for atmospheric depth — 3 cloud strips at different y/depth
+  const CLOUD_RNG = mulberry32(23);
+  const clouds = Array.from({ length: 8 }, () => ({
+    x: CLOUD_RNG() * W * 1.5 - 30,
+    y: 30 + CLOUD_RNG() * 90,
+    w: 18 + CLOUD_RNG() * 36,
+    speed: 0.04 + CLOUD_RNG() * 0.06,
+    layer: Math.floor(CLOUD_RNG() * 3), // 0 far/dim, 1 mid, 2 near/bright
+  }));
+
+  function drawClouds(time) {
+    const colors = ['rgba(180,150,200,0.20)', 'rgba(210,180,225,0.30)', 'rgba(235,210,240,0.42)'];
+    for (const c of clouds) {
+      const x = ((c.x + time * c.speed * 0.05) % (W + 80)) - 40;
+      ctx.fillStyle = colors[c.layer];
+      // Cheap cloud silhouette: 3 stacked rounded rects
+      ctx.fillRect(x, c.y, c.w, 3);
+      ctx.fillRect(x + 2, c.y - 2, c.w - 4, 2);
+      ctx.fillRect(x + 6, c.y - 3, c.w - 12, 2);
+      ctx.fillRect(x + 4, c.y + 3, c.w - 8, 2);
+    }
+  }
+
+  // Horizon haze — soft band where sky meets distant mountains
+  function drawHaze(t) {
+    const dawn = clamp((t - 0.15) * 1.8, 0, 1);
+    const haze = 'rgba(' + Math.floor(lerp(80, 196, dawn)) + ',' + Math.floor(lerp(50, 82, dawn)) + ',' + Math.floor(lerp(110, 122, dawn)) + ',0.35)';
+    for (let y = 132; y < 165; y++) {
+      const a = (y - 132) / 33;
+      ctx.fillStyle = 'rgba(' + Math.floor(lerp(60, 196, dawn)) + ',' + Math.floor(lerp(40, 82, dawn)) + ',' + Math.floor(lerp(95, 122, dawn)) + ',' + (0.5 - a * 0.45).toFixed(2) + ')';
+      ctx.fillRect(0, y, W, 1);
+    }
+  }
+
   function drawMountains() {
+    // DEEPEST range — silhouettes far in the distance, almost sky-toned
+    drawMountainRange(132, 50, '#241848', [22, 36, 28, 40, 30, 38, 32, 26, 34], 13);
     // Back mountains
     drawMountainRange(150, 80, C.mountainBack, [40, 70, 55, 65, 50, 75, 60], 11);
     // Snow caps on back range
@@ -744,11 +780,13 @@ console.log('[Fairchild] animation.js script started parsing');
       if (shakeT <= 0) shakeAmp = 0;
     }
 
-    // ---- Background ----
+    // ---- Background (back-to-front depth) ----
     drawSky(tNorm);
     drawStars(elapsed);
     if (elapsed < T.DRAGON_IN_END) drawMoon();
-    drawMountains();
+    drawClouds(elapsed);          // drift behind mountains, in sky layer
+    drawMountains();              // 3 ranges: deepest, back, front
+    drawHaze(tNorm);              // soft haze blending horizon into mid
     drawGround(tNorm);
 
     // ---- Scene routing ----
@@ -982,68 +1020,106 @@ console.log('[Fairchild] animation.js script started parsing');
 
   function drawLogoReveal(t, dur) {
     const p = clamp(t / dur, 0, 1);
-    // Darken sky for emphasis
-    ctx.globalAlpha = clamp(p * 0.6, 0, 0.6);
+
+    // Darken sky for emphasis (deeper than before)
+    ctx.globalAlpha = clamp(p * 0.75, 0, 0.75);
     px(0, 0, W, H, '#000');
     ctx.globalAlpha = 1;
 
-    // Knight silhouette continues
+    // Sword-plant moment: at p~0.05, knight slams sword into ground.
+    // Trigger ground shake + dust ring + screen flash + light rays.
+    if (p > 0.04 && p < 0.06 && t % 16 < 1) {
+      triggerShake(4, 14);
+      triggerFlash('255,247,196', 12);
+    }
+
+    // Expanding gold dust ring radiating from sword tip (~0.05-0.45 of reveal)
+    const swordTipX = knightX + 50 + 9;   // sword stuck in ground at knight position
+    const swordTipY = 240 - 14;
+    if (p > 0.03 && p < 0.5) {
+      const ringP = clamp((p - 0.03) / 0.32, 0, 1);
+      const r = ringP * 110;
+      const ringFade = (1 - ringP) * 0.85;
+      // Pixel-art expanding ring (4 quadrant arcs sampled)
+      ctx.fillStyle = 'rgba(240,193,74,' + ringFade.toFixed(2) + ')';
+      const segments = 32;
+      for (let i = 0; i < segments; i++) {
+        const ang = (i / segments) * Math.PI * 2;
+        const rx = swordTipX + Math.cos(ang) * r;
+        const ry = swordTipY + Math.sin(ang) * r * 0.45; // squashed (perspective)
+        ctx.fillRect(rx | 0, ry | 0, 1, 1);
+      }
+      // Spawn drifting dust motes from ring on each frame
+      if (Math.random() < 0.6) {
+        const ang = Math.random() * Math.PI * 2;
+        particles.push({
+          type: 'shimmer',
+          x: swordTipX + Math.cos(ang) * r,
+          y: swordTipY + Math.sin(ang) * r * 0.45,
+          vx: Math.cos(ang) * 0.3,
+          vy: -0.15 - Math.random() * 0.3,
+          life: 40 + Math.random() * 30,
+          max: 70,
+        });
+      }
+    }
+
+    // Four light rays bursting from sword tip — appear during letter reveal
+    if (p > 0.08 && p < 0.85) {
+      const rayP = clamp((p - 0.08) / 0.4, 0, 1);
+      const rayLen = 60 + rayP * 90;
+      const rayAlpha = 0.08 + Math.sin(rayP * Math.PI) * 0.18;
+      const angles = [-Math.PI / 4, -Math.PI / 8, Math.PI / 8, Math.PI / 4];
+      for (const ang of angles) {
+        ctx.fillStyle = 'rgba(255,247,196,' + rayAlpha.toFixed(3) + ')';
+        for (let r = 0; r < rayLen; r += 2) {
+          const rx = swordTipX + Math.cos(ang - Math.PI / 2) * r;
+          const ry = swordTipY + Math.sin(ang - Math.PI / 2) * r;
+          const w = 1 + (1 - r / rayLen) * 1.5;
+          ctx.fillRect((rx - w / 2) | 0, (ry - w / 2) | 0, (w | 0) || 1, (w | 0) || 1);
+        }
+      }
+    }
+
     if (p < 0.85) {
-      ctx.globalAlpha = lerp(1, 0.5, p);
+      ctx.globalAlpha = lerp(1, 0.4, p);
       drawKnight(knightX + 50, 240, 'victory', 0);
       ctx.globalAlpha = 1;
     }
 
-    // Logo letters cascade in
     drawLogo(p);
 
-    // Shimmer particles
-    if (Math.random() < 0.5) {
-      spawnShimmer(W / 2, 180, 1);
-    }
+    if (Math.random() < 0.7) spawnShimmer(W / 2, 180, 1);
   }
 
   function drawLogo(p) {
-    // Big "FAIRCHILD" 2x scale, then "CONSULTING SERVICES" 1x scale
     const line1 = 'FAIRCHILD';
     const line2 = 'CONSULTING SERVICES';
     const tagline = 'CUSTOM AI · WORKFLOWS · WEB';
-
     const scale1 = 2;
     const w1 = textWidth(line1, scale1);
     const x1 = (W - w1) / 2;
     const y1 = 150;
-
     const w2 = textWidth(line2, 1);
     const x2 = (W - w2) / 2;
     const y2 = y1 + 7 * scale1 + 8;
-
     const wT = textWidth(tagline, 1);
     const xT = (W - wT) / 2;
     const yT = y2 + 12;
-
-    // Letter-by-letter reveal
-    const totalLetters = line1.length + line2.length;
     const reveal1 = clamp((p - 0.05) * 2.5, 0, 1) * line1.length;
     const reveal2 = clamp((p - 0.45) * 2.5, 0, 1) * line2.length;
     const taglineFade = clamp((p - 0.75) * 4, 0, 1);
-
-    // Draw a subtle gold underline behind line 1
     const ulW = w1 + 8;
     px((W - ulW) / 2, y1 + 7 * scale1 + 2, ulW, 1, C.titleDk);
-
     for (let i = 0; i < Math.floor(reveal1); i++) {
       const ch = line1[i];
       drawText(ch, x1 + i * 6 * scale1, y1, C.title, scale1);
-      // Highlight
       drawText(ch, x1 + i * 6 * scale1, y1 - 1, C.titleHi, scale1);
     }
-
     for (let i = 0; i < Math.floor(reveal2); i++) {
       const ch = line2[i];
       drawText(ch, x2 + i * 6, y2, C.title, 1);
     }
-
     if (taglineFade > 0) {
       ctx.globalAlpha = taglineFade;
       drawText(tagline, xT, yT, C.text, 1);
@@ -1052,19 +1128,17 @@ console.log('[Fairchild] animation.js script started parsing');
   }
 
   function drawFinal() {
-    // Hold final frame: dim background, full logo with continuous shimmer
     ctx.globalAlpha = 0.6;
     px(0, 0, W, H, '#000');
     ctx.globalAlpha = 1;
-
     ctx.globalAlpha = 0.5;
     drawKnight(knightX + 50, 240, 'victory', 0);
     ctx.globalAlpha = 1;
-
     drawLogo(1);
-
     if (Math.random() < 0.5) spawnShimmer(W / 2, 180, 1);
   }
+
+  // ---------- Public API ----------
   window.FairchildIntro = {
     start(callback) {
       onComplete = callback || null;
