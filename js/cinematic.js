@@ -302,16 +302,30 @@ console.log('[Fairchild] animation.js script started parsing');
     const x = (ax | 0) - 12;     // top-left from anchor
     const y = (ay | 0) - 36;
     const flip = opts.flip || false;
-    // Cape sway
-    const sway = state === 'walk' ? (frame % 2 ? 1 : 0) : 0;
+    // Cape sway — now fuller, multi-frame
+    const swayCycle = state === 'walk' ? frame % 4 : 0;
+    const sway = [0, 1, 1, 0][swayCycle] || 0;
+    const swayLow = [0, 1, 2, 1][swayCycle] || 0;
     const breathe = (state === 'idle') ? Math.sin(performance.now() * 0.004) > 0 ? 0 : 1 : 0;
+    // Subtle weight-shift bob during walk
+    const walkBob = state === 'walk' ? ([0, -1, 0, 0][frame % 4] || 0) : 0;
 
     // Helper that respects flip
     const dx = (a) => flip ? (24 - a) : a;
     const p = (a, b, w, h, color) => {
       const ax2 = flip ? (24 - a - w) : a;
-      px(x + ax2, y + b, w, h, color);
+      px(x + ax2, y + b + walkBob, w, h, color);
     };
+
+    // Rim light: faint cool moonlight halo on the LEFT edge of the knight
+    // (drawn before sprite so it sits underneath/behind)
+    if (opts.rimLight !== false) {
+      const rimColor = opts.fireGlow ? 'rgba(255,170,80,0.25)' : 'rgba(180,200,255,0.18)';
+      ctx.fillStyle = rimColor;
+      ctx.fillRect(x + (flip ? 22 : 0), y + 4, 1, 30);
+      ctx.fillRect(x + (flip ? 21 : 1), y + 6, 1, 26);
+      ctx.fillRect(x + (flip ? 23 : -1), y + 8, 1, 22);
+    }
 
     // Cape (behind body)
     p(2, 8 + sway, 5, 18, C.knightCape);
@@ -496,16 +510,29 @@ console.log('[Fairchild] animation.js script started parsing');
     p(48, 13, 2, 3, C.dragonBodyDk);
     p(48, 13, 2, 1, C.dragonBodyHi);
 
-    // ------- Legs / claws -------
+    // ------- Wyvern hind legs only (no front legs — wyvern silhouette) -------
     const legBob = (wingFrame === 1 || wingFrame === 3) ? 1 : 0;
-    p(28, 26 + legBob, 4, 4, C.dragonBody);
-    p(28, 30 + legBob, 1, 1, C.dragonClaw);
-    p(30, 30 + legBob, 1, 1, C.dragonClaw);
-    p(32, 30 + legBob, 1, 1, C.dragonClaw);
-    p(40, 26 + legBob, 4, 4, C.dragonBody);
-    p(40, 30 + legBob, 1, 1, C.dragonClaw);
-    p(42, 30 + legBob, 1, 1, C.dragonClaw);
-    p(44, 30 + legBob, 1, 1, C.dragonClaw);
+    // Two BIG hind legs, hanging down + slightly forward, with thigh + claw
+    // Right hind (closer to viewer) — meatier, more detailed
+    p(34, 26 + legBob, 6, 5, C.dragonBody);          // thigh
+    p(34, 26 + legBob, 6, 1, C.dragonBodyHi);        // top highlight
+    p(35, 31 + legBob, 4, 4, C.dragonBody);          // shin
+    p(35, 31 + legBob, 4, 1, C.dragonBodyDk);        // shin shading
+    p(34, 35 + legBob, 6, 1, C.dragonBodyDk);        // foot pad
+    // Talons (3 splayed forward)
+    p(34, 36 + legBob, 1, 2, C.dragonClaw);
+    p(36, 37 + legBob, 1, 2, C.dragonClaw);
+    p(38, 37 + legBob, 1, 2, C.dragonClaw);
+    p(40, 36 + legBob, 1, 2, C.dragonClaw);
+    // Rear talon (back of foot)
+    p(33, 36 + legBob, 1, 2, C.dragonClaw);
+    // Far hind (background, smaller, slightly offset for depth)
+    p(28, 27 + legBob, 4, 4, C.dragonBodyDk);        // thigh in shadow
+    p(28, 31 + legBob, 3, 3, C.dragonBodyDk);        // shin
+    p(28, 34 + legBob, 4, 1, C.dragonBodyDk);        // foot
+    p(28, 35 + legBob, 1, 1, C.dragonClaw);
+    p(30, 35 + legBob, 1, 1, C.dragonClaw);
+    p(32, 35 + legBob, 1, 1, C.dragonClaw);
 
     // ------- Head / neck -------
     // Neck
@@ -1191,4 +1218,5 @@ console.log('[Fairchild] animation.js script started parsing');
       if (onComplete) onComplete();
     },
   };
+})();
 })();
