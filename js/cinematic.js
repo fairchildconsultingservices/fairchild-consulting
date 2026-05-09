@@ -114,6 +114,19 @@ console.log('[Fairchild] animation.js script started parsing');
     ctx.fillRect(x | 0, y | 0, w | 0, h | 0);
   }
 
+  // ---------- Cinematic effects: camera shake & screen flash ----------
+  let shakeT = 0, shakeAmp = 0;
+  function triggerShake(amp, durFrames) { shakeAmp = amp; shakeT = Math.max(shakeT, durFrames); }
+  let flashT = 0, flashMax = 1, flashColor = '255,255,255';
+  function triggerFlash(rgb, durFrames) { flashColor = rgb || '255,255,255'; flashT = durFrames; flashMax = durFrames; }
+  function drawFlash() {
+    if (flashT <= 0) return;
+    const a = (flashT / flashMax) * 0.85;
+    ctx.fillStyle = 'rgba(' + flashColor + ',' + a.toFixed(3) + ')';
+    ctx.fillRect(0, 0, W, H);
+    flashT -= 1;
+  }
+
   // ---------- Background layers ----------
   const STAR_RNG = mulberry32(7);
   const stars = Array.from({ length: 60 }, () => ({
@@ -721,6 +734,16 @@ console.log('[Fairchild] animation.js script started parsing');
     const elapsed = performance.now() - started;
     const tNorm = clamp(elapsed / TOTAL_DURATION, 0, 1);
 
+    // Apply camera shake by translating the whole frame
+    ctx.save();
+    if (shakeT > 0) {
+      const sx = ((Math.random() - 0.5) * shakeAmp * 2) | 0;
+      const sy = ((Math.random() - 0.5) * shakeAmp * 2) | 0;
+      ctx.translate(sx, sy);
+      shakeT -= 1;
+      if (shakeT <= 0) shakeAmp = 0;
+    }
+
     // ---- Background ----
     drawSky(tNorm);
     drawStars(elapsed);
@@ -755,6 +778,10 @@ console.log('[Fairchild] animation.js script started parsing');
 
     updateParticles();
     drawParticles();
+
+    // Restore from camera shake transform, then draw flash overlay (full-screen)
+    ctx.restore();
+    drawFlash();
 
     if (!done) requestAnimationFrame(frame);
     else {
@@ -857,15 +884,19 @@ console.log('[Fairchild] animation.js script started parsing');
     const dragonY2 = lerp(100, 160, easeOut(p));
     const dragonX2 = lerp(170, 150, easeInOut(p));
 
-    // Multiple slash beats
+    // Multiple slash beats — each one shakes the camera + sparks + blood
     const beats = [0.15, 0.4, 0.65, 0.88]; // p values for slash impacts
     let isHit = false;
     for (const beat of beats) {
       if (Math.abs(p - beat) < 0.04) {
         isHit = true;
         if (Math.abs(p - beat) < 0.005) {
-          spawnSpark(dragonX2 - 15, dragonY2, 12);
-          spawnBlood(dragonX2 - 15, dragonY2, 8);
+          spawnSpark(dragonX2 - 15, dragonY2, 18);
+          spawnBlood(dragonX2 - 15, dragonY2, 10);
+          // Each progressively stronger camera shake — escalating combat
+          triggerShake(2 + dragonHits, 8 + dragonHits * 2);
+          // Subtle red-tinted flash on impact
+          triggerFlash('255,80,40', 4);
           dragonHits++;
         }
       }
@@ -895,10 +926,13 @@ console.log('[Fairchild] animation.js script started parsing');
       ctx.globalAlpha = 1;
     }
 
-    // Death explosion
+    // Death explosion — the killing blow lands. Big white flash + heavy shake.
     if (p < 0.05) {
-      spawnPixelDebris(dragonFallX, dragonFallY, 25);
-      spawnSpark(dragonFallX, dragonFallY, 20);
+      spawnPixelDebris(dragonFallX, dragonFallY, 40);
+      spawnSpark(dragonFallX, dragonFallY, 30);
+      spawnEmber(dragonFallX, dragonFallY, 15);
+      triggerFlash('255,247,196', 18); // gold-white flash, lingers
+      triggerShake(5, 22);              // strong shake fading out
     }
 
     // Knight finishing pose
@@ -1023,7 +1057,6 @@ console.log('[Fairchild] animation.js script started parsing');
     px(0, 0, W, H, '#000');
     ctx.globalAlpha = 1;
 
-    // Persistent knight silhouette
     ctx.globalAlpha = 0.5;
     drawKnight(knightX + 50, 240, 'victory', 0);
     ctx.globalAlpha = 1;
@@ -1032,8 +1065,6 @@ console.log('[Fairchild] animation.js script started parsing');
 
     if (Math.random() < 0.5) spawnShimmer(W / 2, 180, 1);
   }
-
-  // ---------- Public API ----------
   window.FairchildIntro = {
     start(callback) {
       onComplete = callback || null;
