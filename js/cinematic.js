@@ -468,14 +468,34 @@ console.log('[Fairchild] animation.js script started parsing');
     // ------- Wings (drawn first so body covers center) -------
     drawDragonWings(p, wingFrame, state);
 
-    // ------- Tail -------
-    // Long curving tail behind
-    const tailWag = Math.sin(performance.now() * 0.006 + (flip ? 0 : 3)) * 2;
-    p(54, 16 + tailWag, 8, 4, C.dragonBody);
-    p(58, 14 + tailWag, 6, 3, C.dragonBody);
-    p(60, 12 + tailWag, 4, 2, C.dragonBodyDk);
-    p(62, 11 + tailWag, 2, 2, C.dragonBodyDk); // tail spike
-    p(54, 18 + tailWag, 8, 1, C.dragonBodyDk);
+    // ------- Whip tail with arrowhead spade tip (wyvern-style) -------
+    // Tail curls in an S-shape, tapering to a wide spade tip
+    const tw = performance.now() * 0.005;
+    const wag1 = Math.sin(tw) * 2;
+    const wag2 = Math.sin(tw + 0.6) * 3;
+    const wag3 = Math.sin(tw + 1.2) * 4;
+    // Base of tail (thick, attached to body)
+    p(54, 17, 6, 5, C.dragonBody);
+    p(54, 17, 6, 1, C.dragonBodyHi);
+    p(54, 21, 6, 1, C.dragonBodyDk);
+    // Mid tail segment (S-curve up + back)
+    p(60, 16 + wag1, 5, 3, C.dragonBody);
+    p(60, 16 + wag1, 5, 1, C.dragonBodyHi);
+    // Thinner whip section
+    p(65, 14 + wag2, 4, 2, C.dragonBody);
+    p(65, 14 + wag2, 4, 1, C.dragonBodyHi);
+    // Whip taper
+    p(69, 13 + wag2, 3, 2, C.dragonBodyDk);
+    p(72, 12 + wag3, 3, 1, C.dragonBodyDk);
+    // ARROWHEAD spade tip — diamond shape pointing back
+    p(75, 10 + wag3, 1, 1, C.dragonBodyDk);
+    p(74, 11 + wag3, 4, 1, C.dragonBody);
+    p(73, 12 + wag3, 6, 2, C.dragonBody);
+    p(73, 12 + wag3, 6, 1, C.dragonBodyHi);
+    p(74, 14 + wag3, 4, 1, C.dragonBodyDk);
+    p(75, 15 + wag3, 1, 1, C.dragonBodyDk);
+    // Tip glint highlight (catches the moonlight)
+    p(78, 12 + wag3, 1, 1, C.dragonBodyHi);
 
     // ------- Body -------
     p(22, 14, 32, 14, C.dragonBody);
@@ -534,16 +554,32 @@ console.log('[Fairchild] animation.js script started parsing');
     p(30, 35 + legBob, 1, 1, C.dragonClaw);
     p(32, 35 + legBob, 1, 1, C.dragonClaw);
 
-    // ------- Head / neck -------
-    // Neck
-    p(14, 14, 12, 6, C.dragonBody);
-    p(14, 14, 12, 1, C.dragonBodyDk);
-    // Head (front-facing pixel art)
-    p(2, 10, 14, 12, C.dragonBody);
-    p(2, 10, 14, 2, C.dragonBodyDk);
-    p(2, 20, 14, 2, C.dragonBodyDk);
-    // Snout
-    p(0, 14, 4, 5, C.dragonBody);
+    // ------- Wyvern head + long S-curve neck -------
+    // Long neck arching down then forward (S-curve)
+    p(20, 12, 6, 4, C.dragonBody);             // neck base (rises from body)
+    p(20, 12, 6, 1, C.dragonBodyHi);
+    p(16, 11, 6, 4, C.dragonBody);             // neck mid-curve
+    p(16, 11, 6, 1, C.dragonBodyHi);
+    p(12, 12, 6, 4, C.dragonBody);             // neck dipping forward
+    p(12, 12, 6, 1, C.dragonBodyDk);
+    // Neck spines along top (4 small spikes)
+    p(14, 9, 1, 2, C.dragonBodyDk);
+    p(17, 8, 1, 2, C.dragonBodyDk);
+    p(20, 8, 1, 2, C.dragonBodyDk);
+    p(23, 9, 1, 2, C.dragonBodyDk);
+    // Predatory head — narrower, more pointed, jaw-forward
+    p(4, 11, 10, 9, C.dragonBody);             // skull
+    p(4, 11, 10, 1, C.dragonBodyDk);           // top edge shadow
+    p(4, 19, 10, 1, C.dragonBodyDk);           // jaw line shadow
+    p(5, 12, 8, 1, C.dragonBodyHi);            // forehead highlight
+    // Lower jaw extending forward (wyvern profile)
+    p(2, 16, 6, 4, C.dragonBody);              // protruding jaw
+    p(2, 16, 6, 1, C.dragonBodyDk);
+    // Pointed snout / beak tip
+    p(0, 16, 2, 3, C.dragonBody);
+    p(0, 16, 2, 1, C.dragonBodyDk);
+    // Brow ridge over eye
+    p(7, 11, 5, 1, C.dragonBodyDk);
     // Nostril
     p(1, 15, 1, 1, C.dragonBodyDk);
     p(2, 16, 1, 1, C.dragonBodyDk);
@@ -1179,7 +1215,6 @@ console.log('[Fairchild] animation.js script started parsing');
     const ulW = w1 + 8;
     px((W - ulW) / 2, y1 + 7 * scale1 + 2, ulW, 1, C.titleDk);
     for (let i = 0; i < Math.floor(reveal1); i++) {
-      const ch = line1[i];
       drawText(ch, x1 + i * 6 * scale1, y1, C.title, scale1);
       drawText(ch, x1 + i * 6 * scale1, y1 - 1, C.titleHi, scale1);
     }
@@ -1218,5 +1253,4 @@ console.log('[Fairchild] animation.js script started parsing');
       if (onComplete) onComplete();
     },
   };
-})();
 })();
