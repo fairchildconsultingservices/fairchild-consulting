@@ -13,10 +13,11 @@ import qrcode
 from PIL import Image, ImageDraw, ImageFont
 
 # ===== EDIT ME after deploying =====
-URL_TO_ENCODE = "https://YOUR-USERNAME.github.io/fairchild-consulting/intro.html"
+URL_TO_ENCODE = "https://fairchildconsultingservices.github.io/fairchild-consulting/intro.html"
 # ====================================
 
-OUT_DIR = Path("/sessions/elegant-determined-bell/mnt/Portfolio Webpage - Fairchild Consulting Services/assets")
+SCRIPT_DIR = Path(__file__).resolve().parent
+OUT_DIR = SCRIPT_DIR.parent / "assets"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 GOLD     = (240, 193, 74, 255)
@@ -49,10 +50,22 @@ print("qr.png        ->", qr_img.size)
 
 def load_font(size, bold=False):
     paths = [
+        # Windows (most likely path for this user)
+        r"C:\Windows\Fonts\georgiab.ttf" if bold else r"C:\Windows\Fonts\georgia.ttf",
+        r"C:\Windows\Fonts\timesbd.ttf" if bold else r"C:\Windows\Fonts\times.ttf",
+        r"C:\Windows\Fonts\arialbd.ttf" if bold else r"C:\Windows\Fonts\arial.ttf",
+        # macOS
+        "/Library/Fonts/Georgia Bold.ttf" if bold else "/Library/Fonts/Georgia.ttf",
+        "/System/Library/Fonts/Supplemental/Georgia Bold.ttf" if bold
+        else "/System/Library/Fonts/Supplemental/Georgia.ttf",
+        # Linux (DejaVu)
         "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf" if bold
         else "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold
         else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        # Pillow name lookup (last resort)
+        "Georgia Bold" if bold else "Georgia",
+        "Arial Bold" if bold else "Arial",
     ]
     for p in paths:
         try:
