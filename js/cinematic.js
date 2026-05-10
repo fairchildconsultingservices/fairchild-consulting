@@ -536,29 +536,48 @@ console.log('[Fairchild] animation.js script started parsing');
     p(48, 13, 2, 3, C.dragonBodyDk);
     p(48, 13, 2, 1, C.dragonBodyHi);
 
-    // ------- Wyvern hind legs only (no front legs — wyvern silhouette) -------
+    // ------- Four legs (true quadruped) -------
     const legBob = (wingFrame === 1 || wingFrame === 3) ? 1 : 0;
-    // Two BIG hind legs, hanging down + slightly forward, with thigh + claw
-    // Right hind (closer to viewer) — meatier, more detailed
-    p(34, 26 + legBob, 6, 5, C.dragonBody);          // thigh
-    p(34, 26 + legBob, 6, 1, C.dragonBodyHi);        // top highlight
-    p(35, 31 + legBob, 4, 4, C.dragonBody);          // shin
-    p(35, 31 + legBob, 4, 1, C.dragonBodyDk);        // shin shading
-    p(34, 35 + legBob, 6, 1, C.dragonBodyDk);        // foot pad
-    // Talons (3 splayed forward)
-    p(34, 36 + legBob, 1, 2, C.dragonClaw);
-    p(36, 37 + legBob, 1, 2, C.dragonClaw);
-    p(38, 37 + legBob, 1, 2, C.dragonClaw);
-    p(40, 36 + legBob, 1, 2, C.dragonClaw);
-    // Rear talon (back of foot)
-    p(33, 36 + legBob, 1, 2, C.dragonClaw);
-    // Far hind (background, smaller, slightly offset for depth)
-    p(28, 27 + legBob, 4, 4, C.dragonBodyDk);        // thigh in shadow
-    p(28, 31 + legBob, 3, 3, C.dragonBodyDk);        // shin
-    p(28, 34 + legBob, 4, 1, C.dragonBodyDk);        // foot
-    p(28, 35 + legBob, 1, 1, C.dragonClaw);
-    p(30, 35 + legBob, 1, 1, C.dragonClaw);
-    p(32, 35 + legBob, 1, 1, C.dragonClaw);
+    const legBobAlt = (wingFrame === 0 || wingFrame === 2) ? 1 : 0; // opposite for diagonal gait
+
+    // BACK-NEAR (foreground hindleg, biggest, under hip) — same detailed design
+    p(42, 26 + legBob, 6, 5, C.dragonBody);          // thigh
+    p(42, 26 + legBob, 6, 1, C.dragonBodyHi);        // top highlight
+    p(43, 31 + legBob, 4, 4, C.dragonBody);          // shin
+    p(43, 31 + legBob, 4, 1, C.dragonBodyDk);        // shin shading
+    p(42, 35 + legBob, 6, 1, C.dragonBodyDk);        // foot pad
+    p(42, 36 + legBob, 1, 2, C.dragonClaw);          // splayed talons
+    p(44, 37 + legBob, 1, 2, C.dragonClaw);
+    p(46, 37 + legBob, 1, 2, C.dragonClaw);
+    p(48, 36 + legBob, 1, 2, C.dragonClaw);
+    p(41, 36 + legBob, 1, 2, C.dragonClaw);          // rear talon
+
+    // BACK-FAR (background hindleg in shadow)
+    p(38, 27 + legBobAlt, 4, 4, C.dragonBodyDk);
+    p(38, 31 + legBobAlt, 3, 3, C.dragonBodyDk);
+    p(38, 34 + legBobAlt, 4, 1, C.dragonBodyDk);
+    p(38, 35 + legBobAlt, 1, 1, C.dragonClaw);
+    p(40, 35 + legBobAlt, 1, 1, C.dragonClaw);
+    p(41, 35 + legBobAlt, 1, 1, C.dragonClaw);
+
+    // FRONT-NEAR (foreground foreleg, slightly thinner, under shoulder)
+    p(24, 26 + legBobAlt, 5, 5, C.dragonBody);       // thigh/shoulder
+    p(24, 26 + legBobAlt, 5, 1, C.dragonBodyHi);     // top highlight
+    p(25, 31 + legBobAlt, 3, 4, C.dragonBody);       // shin
+    p(25, 31 + legBobAlt, 3, 1, C.dragonBodyDk);     // shin shading
+    p(24, 35 + legBobAlt, 5, 1, C.dragonBodyDk);     // foot pad
+    p(24, 36 + legBobAlt, 1, 2, C.dragonClaw);       // talons
+    p(26, 37 + legBobAlt, 1, 2, C.dragonClaw);
+    p(28, 36 + legBobAlt, 1, 2, C.dragonClaw);
+    p(23, 36 + legBobAlt, 1, 2, C.dragonClaw);       // rear talon
+
+    // FRONT-FAR (background foreleg in shadow, simplest)
+    p(20, 27 + legBob, 3, 4, C.dragonBodyDk);
+    p(20, 31 + legBob, 3, 3, C.dragonBodyDk);
+    p(20, 34 + legBob, 4, 1, C.dragonBodyDk);
+    p(20, 35 + legBob, 1, 1, C.dragonClaw);
+    p(22, 35 + legBob, 1, 1, C.dragonClaw);
+    p(23, 35 + legBob, 1, 1, C.dragonClaw);
 
     // ------- Wyvern head + long S-curve neck -------
     // Long neck arching down then forward (S-curve)
