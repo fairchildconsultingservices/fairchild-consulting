@@ -359,7 +359,29 @@ console.log('[Fairchild] animation.js script started parsing');
     p(17, 12 + breathe, 3, 4, C.knightArmorDk);
 
     // Helmet
-    // (Gold crest plume removed — knight wears a clean helmet now)
+    // Antlers — pair of branching bone-colored antlers from sides of helmet top
+    const ANTLER = '#cdb98b';     // warm bone
+    const ANTLER_DK = '#8a7050';  // shadow side
+    // LEFT antler
+    p(7, 0, 1, 1, ANTLER_DK);     // base on helmet top
+    p(7, -2, 1, 2, ANTLER);       // main shaft
+    p(6, -4, 1, 2, ANTLER);       // curving outward
+    p(5, -6, 1, 2, ANTLER);       // upper segment
+    p(4, -7, 1, 1, ANTLER);       // tip
+    p(8, -3, 1, 1, ANTLER_DK);    // backward prong base
+    p(9, -4, 1, 1, ANTLER);       // backward prong
+    p(3, -4, 1, 1, ANTLER);       // outer prong
+    p(2, -5, 1, 1, ANTLER);       // outer prong tip
+    // RIGHT antler (mirror)
+    p(16, 0, 1, 1, ANTLER_DK);
+    p(16, -2, 1, 2, ANTLER);
+    p(17, -4, 1, 2, ANTLER);
+    p(18, -6, 1, 2, ANTLER);
+    p(19, -7, 1, 1, ANTLER);
+    p(15, -3, 1, 1, ANTLER_DK);
+    p(14, -4, 1, 1, ANTLER);
+    p(20, -4, 1, 1, ANTLER);
+    p(21, -5, 1, 1, ANTLER);
     p(6, 2, 12, 9, C.knightArmor);     // dome
     p(6, 2, 12, 1, C.knightArmorHi);   // top highlight
     // Visor slit
@@ -560,24 +582,24 @@ console.log('[Fairchild] animation.js script started parsing');
     p(40, 35 + legBobAlt, 1, 1, C.dragonClaw);
     p(41, 35 + legBobAlt, 1, 1, C.dragonClaw);
 
-    // FRONT-NEAR (foreground foreleg, slightly thinner, under shoulder)
-    p(24, 26 + legBobAlt, 5, 5, C.dragonBody);       // thigh/shoulder
-    p(24, 26 + legBobAlt, 5, 1, C.dragonBodyHi);     // top highlight
-    p(25, 31 + legBobAlt, 3, 4, C.dragonBody);       // shin
-    p(25, 31 + legBobAlt, 3, 1, C.dragonBodyDk);     // shin shading
-    p(24, 35 + legBobAlt, 5, 1, C.dragonBodyDk);     // foot pad
-    p(24, 36 + legBobAlt, 1, 2, C.dragonClaw);       // talons
-    p(26, 37 + legBobAlt, 1, 2, C.dragonClaw);
-    p(28, 36 + legBobAlt, 1, 2, C.dragonClaw);
-    p(23, 36 + legBobAlt, 1, 2, C.dragonClaw);       // rear talon
+    // FRONT-NEAR (foreground foreleg, slightly thinner, under shoulder, shifted back)
+    p(28, 26 + legBobAlt, 5, 5, C.dragonBody);       // thigh/shoulder
+    p(28, 26 + legBobAlt, 5, 1, C.dragonBodyHi);     // top highlight
+    p(29, 31 + legBobAlt, 3, 4, C.dragonBody);       // shin
+    p(29, 31 + legBobAlt, 3, 1, C.dragonBodyDk);     // shin shading
+    p(28, 35 + legBobAlt, 5, 1, C.dragonBodyDk);     // foot pad
+    p(28, 36 + legBobAlt, 1, 2, C.dragonClaw);       // talons
+    p(30, 37 + legBobAlt, 1, 2, C.dragonClaw);
+    p(32, 36 + legBobAlt, 1, 2, C.dragonClaw);
+    p(27, 36 + legBobAlt, 1, 2, C.dragonClaw);       // rear talon
 
-    // FRONT-FAR (background foreleg in shadow, simplest)
-    p(20, 27 + legBob, 3, 4, C.dragonBodyDk);
-    p(20, 31 + legBob, 3, 3, C.dragonBodyDk);
-    p(20, 34 + legBob, 4, 1, C.dragonBodyDk);
-    p(20, 35 + legBob, 1, 1, C.dragonClaw);
-    p(22, 35 + legBob, 1, 1, C.dragonClaw);
-    p(23, 35 + legBob, 1, 1, C.dragonClaw);
+    // FRONT-FAR (background foreleg in shadow, simplest, shifted back)
+    p(24, 27 + legBob, 3, 4, C.dragonBodyDk);
+    p(24, 31 + legBob, 3, 3, C.dragonBodyDk);
+    p(24, 34 + legBob, 4, 1, C.dragonBodyDk);
+    p(24, 35 + legBob, 1, 1, C.dragonClaw);
+    p(26, 35 + legBob, 1, 1, C.dragonClaw);
+    p(27, 35 + legBob, 1, 1, C.dragonClaw);
 
     // ------- Wyvern head + long S-curve neck -------
     // Long neck arching down then forward (S-curve)
