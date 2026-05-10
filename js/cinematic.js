@@ -359,9 +359,7 @@ console.log('[Fairchild] animation.js script started parsing');
     p(17, 12 + breathe, 3, 4, C.knightArmorDk);
 
     // Helmet
-    p(7, 0, 10, 2, C.knightArmorDk);   // crest base
-    p(8, -2, 8, 3, C.knightTrim);      // gold crest plume
-    p(9, -3, 6, 1, C.knightTrim);
+    // (Gold crest plume removed — knight wears a clean helmet now)
     p(6, 2, 12, 9, C.knightArmor);     // dome
     p(6, 2, 12, 1, C.knightArmorHi);   // top highlight
     // Visor slit
