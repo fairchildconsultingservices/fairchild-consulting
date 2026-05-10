@@ -302,11 +302,11 @@ console.log('[Fairchild] animation.js script started parsing');
     const x = (ax | 0) - 12;     // top-left from anchor
     const y = (ay | 0) - 36;
     const flip = opts.flip || false;
-    // Cape sway — now fuller, multi-frame
-    const swayCycle = state === 'walk' ? frame % 4 : 0;
-    const sway = [0, 1, 1, 0][swayCycle] || 0;
-    const swayLow = [0, 1, 2, 1][swayCycle] || 0;
-    const breathe = (state === 'idle') ? Math.sin(performance.now() * 0.004) > 0 ? 0 : 1 : 0;
+    // Cape sway — continuous time-based wobble (always alive, faster during walk)
+    const t = performance.now();
+    const swayBase = Math.sin(t * (state === 'walk' ? 0.014 : 0.005));
+    const sway = swayBase > 0 ? 1 : 0;
+    const breathe = (state === 'idle') ? (Math.sin(t * 0.004) > 0 ? 0 : 1) : 0;
     // Subtle weight-shift bob during walk
     const walkBob = state === 'walk' ? ([0, -1, 0, 0][frame % 4] || 0) : 0;
 
@@ -317,15 +317,8 @@ console.log('[Fairchild] animation.js script started parsing');
       px(x + ax2, y + b + walkBob, w, h, color);
     };
 
-    // Rim light: faint cool moonlight halo on the LEFT edge of the knight
-    // (drawn before sprite so it sits underneath/behind)
-    if (opts.rimLight !== false) {
-      const rimColor = opts.fireGlow ? 'rgba(255,170,80,0.25)' : 'rgba(180,200,255,0.18)';
-      ctx.fillStyle = rimColor;
-      ctx.fillRect(x + (flip ? 22 : 0), y + 4, 1, 30);
-      ctx.fillRect(x + (flip ? 21 : 1), y + 6, 1, 26);
-      ctx.fillRect(x + (flip ? 23 : -1), y + 8, 1, 22);
-    }
+    // Rim light removed (was creating a visible stripe artifact). If we want
+    // it back later we'll bake it INTO sprite pixels instead of overlay.
 
     // Cape (behind body)
     p(2, 8 + sway, 5, 18, C.knightCape);
@@ -670,19 +663,43 @@ console.log('[Fairchild] animation.js script started parsing');
       [{ a: 22, b: 4, w: 24, h: 2 }, { a: 26, b: 6, w: 16, h: 3 }],
     ];
     const layers = phases[wingFrame];
-    for (const L of layers) {
-      p(L.a, L.b, L.w, L.h, C.dragonBodyDk);
-    }
-    // Wing membrane bones
-    p(22, layers[0].b, 1, 8, C.dragonBodyDk);
-    p(30, layers[0].b - 2, 1, 10, C.dragonBodyDk);
-    p(38, layers[0].b - 1, 1, 9, C.dragonBodyDk);
-    p(46, layers[0].b + 1, 1, 7, C.dragonBodyDk);
-    // Wing fill
-    p(23, layers[0].b + 1, 22, 6, C.dragonBody);
+    const baseB = layers[0].b;
+
+    // Curved wing leading edge — stepped arc instead of flat rectangle
+    // Each segment of the wing dips lower the further from the body
+    p(22, baseB,     6, 2, C.dragonBodyDk);  // shoulder (highest)
+    p(28, baseB + 1, 6, 2, C.dragonBodyDk);
+    p(34, baseB + 2, 6, 2, C.dragonBodyDk);
+    p(40, baseB + 3, 5, 2, C.dragonBodyDk);  // wing tip dipping down + back
+
+    // Wing fingers (membrane bones) — fan out at angles, not vertical
+    p(22, baseB + 2, 1, 7, C.dragonBodyDk);   // index finger (closest, longest)
+    p(29, baseB + 1, 1, 9, C.dragonBodyDk);
+    p(35, baseB + 2, 1, 8, C.dragonBodyDk);
+    p(41, baseB + 3, 1, 6, C.dragonBodyDk);   // pinky (shortest, swept back)
+
+    // Curved trailing edge of membrane — sloping arc with scalloped bottom
+    // (each panel between fingers droops in the middle for a torn-leather look)
+    p(23, baseB + 3, 5, 5, C.dragonBody);     // panel 1 (high)
+    p(24, baseB + 7, 4, 1, C.dragonBodyDk);   // panel 1 droop
+    p(30, baseB + 4, 5, 5, C.dragonBody);     // panel 2 (slightly lower)
+    p(31, baseB + 8, 4, 1, C.dragonBodyDk);
+    p(36, baseB + 5, 5, 4, C.dragonBody);     // panel 3 (lower)
+    p(37, baseB + 8, 4, 1, C.dragonBodyDk);
+    p(42, baseB + 6, 4, 3, C.dragonBody);     // panel 4 (tip, smallest)
+
+    // Subtle highlight along the leading edge to suggest curvature
+    p(23, baseB + 1, 4, 1, C.dragonBodyHi);
+    p(29, baseB + 2, 4, 1, C.dragonBodyHi);
+    p(35, baseB + 3, 4, 1, C.dragonBodyHi);
+
+    // Wing claw at the bend (small hook at finger 1's top)
+    p(22, baseB - 1, 1, 1, C.dragonClaw);
+
     if (state === 'dying' || state === 'dead') {
-      // Tattered
-      p(24, layers[0].b + 4, 6, 2, C.skyTop);
+      // Tattered membrane — holes torn through panels
+      p(25, baseB + 5, 3, 2, C.skyTop);
+      p(33, baseB + 6, 2, 2, C.skyTop);
     }
   }
 
@@ -1227,7 +1244,6 @@ console.log('[Fairchild] animation.js script started parsing');
     const reveal2 = clamp((p - 0.45) * 2.5, 0, 1) * line2.length;
     const taglineFade = clamp((p - 0.75) * 4, 0, 1);
     const ulW = w1 + 8;
-    px((W - ulW) / 2, y1 + 7 * scale1 + 2, ulW, 1, C.titleDk);
     for (let i = 0; i < Math.floor(reveal1); i++) {
       const ch = line1[i];
       drawText(ch, x1 + i * 6 * scale1, y1, C.title, scale1);
