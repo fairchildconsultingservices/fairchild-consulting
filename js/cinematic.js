@@ -665,41 +665,53 @@ console.log('[Fairchild] animation.js script started parsing');
     const layers = phases[wingFrame];
     const baseB = layers[0].b;
 
-    // Curved wing leading edge — stepped arc instead of flat rectangle
-    // Each segment of the wing dips lower the further from the body
-    p(22, baseB,     6, 2, C.dragonBodyDk);  // shoulder (highest)
-    p(28, baseB + 1, 6, 2, C.dragonBodyDk);
-    p(34, baseB + 2, 6, 2, C.dragonBodyDk);
-    p(40, baseB + 3, 5, 2, C.dragonBodyDk);  // wing tip dipping down + back
+    // BIG wing arching UP and outward, then curving back down to a swept tip.
+    // Leading edge is an upward arc — like a bat wing raised in flight.
+    // Span goes from x=20 (shoulder) to x=60 (tip), 12-14 px tall.
+    p(20, baseB + 2, 4, 2, C.dragonBodyDk);    // shoulder mount (low/wide)
+    p(24, baseB,     6, 2, C.dragonBodyDk);    // arm rising
+    p(30, baseB - 2, 6, 2, C.dragonBodyDk);    // arching up
+    p(36, baseB - 4, 6, 2, C.dragonBodyDk);    // PEAK of wing arc
+    p(42, baseB - 4, 6, 2, C.dragonBodyDk);    // shoulder of forearm
+    p(48, baseB - 3, 6, 2, C.dragonBodyDk);    // forearm starts curving back+down
+    p(54, baseB - 1, 5, 2, C.dragonBodyDk);    // approaching tip
+    p(58, baseB + 1, 4, 2, C.dragonBodyDk);    // wing TIP curving downward+back
 
-    // Wing fingers (membrane bones) — fan out at angles, not vertical
-    p(22, baseB + 2, 1, 7, C.dragonBodyDk);   // index finger (closest, longest)
-    p(29, baseB + 1, 1, 9, C.dragonBodyDk);
-    p(35, baseB + 2, 1, 8, C.dragonBodyDk);
-    p(41, baseB + 3, 1, 6, C.dragonBodyDk);   // pinky (shortest, swept back)
+    // Wing fingers (membrane bones) — fan DOWN from leading edge to body
+    p(22, baseB + 2, 1, 8, C.dragonBodyDk);    // finger 1 (shoulder, vertical down)
+    p(31, baseB,     1, 11, C.dragonBodyDk);   // finger 2 (long, mid-arc)
+    p(39, baseB - 2, 1, 13, C.dragonBodyDk);   // finger 3 (longest, from peak)
+    p(48, baseB - 1, 1, 12, C.dragonBodyDk);   // finger 4
+    p(56, baseB,     1, 10, C.dragonBodyDk);   // finger 5 (tip, shortest)
 
-    // Curved trailing edge of membrane — sloping arc with scalloped bottom
-    // (each panel between fingers droops in the middle for a torn-leather look)
-    p(23, baseB + 3, 5, 5, C.dragonBody);     // panel 1 (high)
-    p(24, baseB + 7, 4, 1, C.dragonBodyDk);   // panel 1 droop
-    p(30, baseB + 4, 5, 5, C.dragonBody);     // panel 2 (slightly lower)
-    p(31, baseB + 8, 4, 1, C.dragonBodyDk);
-    p(36, baseB + 5, 5, 4, C.dragonBody);     // panel 3 (lower)
-    p(37, baseB + 8, 4, 1, C.dragonBodyDk);
-    p(42, baseB + 6, 4, 3, C.dragonBody);     // panel 4 (tip, smallest)
+    // Membrane panels between fingers — fill BELOW the fingers (between fingers
+    // and dragon's back). Each panel scallops with a droop in the middle.
+    p(23, baseB + 3, 7, 7, C.dragonBody);      // panel 1
+    p(25, baseB + 9, 5, 1, C.dragonBodyDk);    // droop
+    p(32, baseB + 1, 6, 9, C.dragonBody);      // panel 2 (taller, peak area)
+    p(34, baseB + 9, 4, 1, C.dragonBodyDk);
+    p(40, baseB - 1, 7, 11, C.dragonBody);     // panel 3 (tallest, peak)
+    p(42, baseB + 9, 5, 1, C.dragonBodyDk);
+    p(49, baseB,     6, 9, C.dragonBody);      // panel 4
+    p(51, baseB + 8, 4, 1, C.dragonBodyDk);
+    p(57, baseB + 1, 4, 7, C.dragonBody);      // panel 5 (tip)
 
-    // Subtle highlight along the leading edge to suggest curvature
-    p(23, baseB + 1, 4, 1, C.dragonBodyHi);
-    p(29, baseB + 2, 4, 1, C.dragonBodyHi);
-    p(35, baseB + 3, 4, 1, C.dragonBodyHi);
+    // Highlight along leading edge to suggest curvature
+    p(25, baseB + 1, 5, 1, C.dragonBodyHi);
+    p(31, baseB - 1, 5, 1, C.dragonBodyHi);
+    p(37, baseB - 3, 5, 1, C.dragonBodyHi);
+    p(43, baseB - 3, 5, 1, C.dragonBodyHi);
+    p(49, baseB - 2, 5, 1, C.dragonBodyHi);
 
-    // Wing claw at the bend (small hook at finger 1's top)
-    p(22, baseB - 1, 1, 1, C.dragonClaw);
+    // Wing claw at the wing's elbow (small hook on the leading edge)
+    p(36, baseB - 5, 1, 1, C.dragonClaw);
+    p(35, baseB - 5, 1, 1, C.dragonClaw);
 
     if (state === 'dying' || state === 'dead') {
       // Tattered membrane — holes torn through panels
-      p(25, baseB + 5, 3, 2, C.skyTop);
-      p(33, baseB + 6, 2, 2, C.skyTop);
+      p(26, baseB + 5, 3, 2, C.skyTop);
+      p(34, baseB + 4, 3, 2, C.skyTop);
+      p(43, baseB + 3, 3, 2, C.skyTop);
     }
   }
 
