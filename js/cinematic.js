@@ -1016,16 +1016,18 @@ console.log('[Fairchild] animation.js script started parsing');
 
   // ---------- Scenes ----------
   function drawIntroScene(t) {
-    // Faint subtitle fade-in
+    // Subtitle fade-in
     const a = clamp(t / 1200, 0, 1);
     if (a > 0) {
       ctx.globalAlpha = a;
       const text = 'A LEGEND BEGINS';
       const w = textWidth(text, 1);
-      drawText(text, (W - w) / 2, 80, C.textDim, 1);
+      const tx = (W - w) / 2;
+      // Drop shadow for legibility
+      drawText(text, tx + 1, 81, '#000', 1);
+      drawText(text, tx, 80, C.titleHi, 1);
       ctx.globalAlpha = 1;
     }
-    // Knight not visible yet
   }
 
   let knightX = -30;
@@ -1040,7 +1042,9 @@ console.log('[Fairchild] animation.js script started parsing');
     if (a > 0) {
       ctx.globalAlpha = a;
       const text = 'A LEGEND BEGINS';
-      drawText(text, (W - textWidth(text, 1)) / 2, 80, C.textDim, 1);
+      const tx = (W - textWidth(text, 1)) / 2;
+      drawText(text, tx + 1, 81, '#000', 1);
+      drawText(text, tx, 80, C.titleHi, 1);
       ctx.globalAlpha = 1;
     }
   }
@@ -1302,11 +1306,15 @@ console.log('[Fairchild] animation.js script started parsing');
     }
     for (let i = 0; i < Math.floor(reveal2); i++) {
       const ch = line2[i];
-      drawText(ch, x2 + i * 6, y2, C.title, 1);
+      // Drop shadow for legibility, then bright gold on top
+      drawText(ch, x2 + i * 6 + 1, y2 + 1, '#000', 1);
+      drawText(ch, x2 + i * 6, y2, C.titleHi, 1);
     }
     if (taglineFade > 0) {
       ctx.globalAlpha = taglineFade;
-      drawText(tagline, xT, yT, C.text, 1);
+      // Tagline with shadow + bright cream for readability
+      drawText(tagline, xT + 1, yT + 1, '#000', 1);
+      drawText(tagline, xT, yT, '#ffffff', 1);
       ctx.globalAlpha = 1;
     }
   }
@@ -1317,7 +1325,6 @@ console.log('[Fairchild] animation.js script started parsing');
     ctx.globalAlpha = 1;
     ctx.globalAlpha = 0.5;
     drawKnight(knightX + 50, 240, 'victory', 0);
-    ctx.globalAlpha = 1;
     drawLogo(1);
     if (Math.random() < 0.5) spawnShimmer(W / 2, 180, 1);
   }
