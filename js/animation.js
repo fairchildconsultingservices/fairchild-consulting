@@ -973,7 +973,7 @@ console.log('[Fairchild] animation.js script started parsing');
     // Big "FAIRCHILD" 2x scale, then "CONSULTING SERVICES" 1x scale
     const line1 = 'FAIRCHILD';
     const line2 = 'CONSULTING SERVICES';
-    const tagline = 'CUSTOM AI · WORKFLOWS · WEB';
+    const tagline = 'BESPOKE TOOLS · WORKFLOWS · WEB';
 
     const scale1 = 2;
     const w1 = textWidth(line1, scale1);
